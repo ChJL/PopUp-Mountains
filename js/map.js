@@ -1,6 +1,6 @@
 var mountIcon = L.icon({
 	iconUrl: 'images/marker/mountains-64.png',
-	iconSize:     [25, 25], // size of the icon
+	iconSize:     [35, 35], // size of the icon
 });
 
 
@@ -37,7 +37,7 @@ function showMarker(mountains) {
   console.log(mountains);
   mountains.forEach((mountain) => {
     const popupContent = document.createElement("div")
-    popupContent.innerHTML = "<h3>" + mountain.name +"</h3>" + "<a href='"+mountain.website+"'>Blog</a>"
+    popupContent.innerHTML = "<h2>" + mountain.name +"</h2>" + "<a href='"+mountain.website+"'>Blog</a>"
     const marker = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
         { maxWidth: "200" }).addTo(mymap);
   })
