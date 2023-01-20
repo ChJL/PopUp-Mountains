@@ -2,13 +2,17 @@ var mountIcon = L.icon({
 	iconUrl: 'images/marker/mountains-64.png',
 	iconSize:     [35, 35], // size of the icon
 });
-
+var mountNotIcon = L.icon({
+	iconUrl: 'images/marker/mountains-notyet.png',
+	iconSize:     [35, 35], // size of the icon
+});
 
 var mapOptions = {
-    center: [23.5, 121.1],
+    center: [23.69, 120.94],
     zoom: 9
   }
 var mymap = L.map('mapid', mapOptions);
+mymap.setMaxBounds([[21.69, 119.95], [26.69, 121.94]]);
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -37,9 +41,18 @@ function showMarker(mountains) {
   console.log(mountains);
   mountains.forEach((mountain) => {
     const popupContent = document.createElement("div")
-    popupContent.innerHTML = "<h2>" + mountain.name +"</h2>" + "<a href='"+mountain.website+"'>Blog</a>"
-    const marker = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
-        { maxWidth: "200" }).addTo(mymap);
+    if (mountain.website){
+      popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3><a target='_blank' href='"+mountain.website+"'>Blog</a></h3>" 
+                              + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>"
+      const marker1 = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+                                { maxWidth: "auto" }).addTo(mymap);
+                            }
+    else {
+      popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3> To be finished </h3>"
+      const marker2 = L.marker([mountain.lat, mountain.lng],{icon: mountNotIcon}).bindPopup(popupContent,
+        { maxWidth: "300" }).addTo(mymap);
+    }
+    
   })
 }
 
