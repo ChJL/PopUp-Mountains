@@ -14,6 +14,7 @@ var mapOptions = {
 var mymap = L.map('mapid', mapOptions);
 mymap.setMaxBounds([[21.69, 119.95], [26.69, 121.94]]);
 
+
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     id: 'mapbox/streets-v12',
@@ -44,12 +45,13 @@ function showMarker(mountains) {
     if (mountain.website){
       popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3><a target='_blank' href='"+mountain.website+"'>Blog</a></h3>" 
                               + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>"
-      const marker1 = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+        window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
                                 { maxWidth: "auto" }).addTo(mymap);
-                            }
+              
+          }
     else {
       popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3> To be finished </h3>"
-      const marker2 = L.marker([mountain.lat, mountain.lng],{icon: mountNotIcon}).bindPopup(popupContent,
+      window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountNotIcon}).bindPopup(popupContent,
         { maxWidth: "300" }).addTo(mymap);
     }
     
@@ -67,13 +69,35 @@ function parseData(url, callBack) {
 parseData("data/Mountain_info.csv", showMarker);
 // Add legends
 var legend = L.control({position: 'bottomleft'});
-
 legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
-    div.innerHTML +=  '<img src="images/marker/mountains-64.png">' + "<h4>"+'Finished'+"</h4>"
-    div.innerHTML +=  '<img src="images/marker/mountains-notyet.png">'  + "<h4>"+' Not Yet'+"</h4>"
+    // div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="Search 百岳">'
+    div.innerHTML +=  "<h3>"+'百岳完成進度'+"</h3>"
+    div.innerHTML +=  '<img src="images/marker/mountains-64.png">' + "<h4>"+'Finished 82%'+"</h4>"
+    div.innerHTML +=  '<img src="images/marker/mountains-notyet.png">'  + "<h4>"+' Not Yet 18%'+"</h4>"
     return div;
 };
 legend.addTo(mymap);
 
-legend.addTo(mymap);
+// Add search bar
+var searchBar = L.control({position: 'topleft'});
+searchBar.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'info legend');
+  div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="Search 百岳">'
+  return div;
+};
+searchBar.addTo(mymap)
+
+
+function search_mt() {
+  let input = document.getElementById('searchbar').value
+  console.log(input);
+  $.get("data/Mountain_info.csv", function(data) {
+  var mtdata = $.csv.toObjects(data);
+    mtdata.forEach((mt) => {
+      if(mt.name === input){
+        window['marker' + mt.file].openPopup();
+      }
+    })
+  });
+}
