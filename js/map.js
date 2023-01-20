@@ -63,5 +63,17 @@ function parseData(url, callBack) {
         callBack(csvData);
     });
 }
-
+// Show marker and PopUp func
 parseData("data/Mountain_info.csv", showMarker);
+// Add legends
+var legend = L.control({position: 'bottomleft'});
+
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.innerHTML +=  '<img src="images/marker/mountains-64.png">' + "<h4>"+'Finished'+"</h4>"
+    div.innerHTML +=  '<img src="images/marker/mountains-notyet.png">'  + "<h4>"+' Not Yet'+"</h4>"
+    return div;
+};
+legend.addTo(mymap);
+
+legend.addTo(mymap);
