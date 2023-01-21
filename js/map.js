@@ -43,8 +43,8 @@ function showMarker(mountains) {
   mountains.forEach((mountain) => {
     const popupContent = document.createElement("div")
     if (mountain.website){
-      popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3><a target='_blank' href='"+mountain.website+"'>Blog</a></h3>" 
-                              + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>"
+      popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
+                              +'<a href=' +mountain.website + '>' + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
         window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
                                 { maxWidth: "auto" }).addTo(mymap);
               
