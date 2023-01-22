@@ -82,8 +82,8 @@ legend.addTo(mymap);
 // Add search bar
 var searchBar = L.control({position: 'topleft'});
 searchBar.onAdd = function (map) {
-  var div = L.DomUtil.create('div', 'info legend');
-  div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="Search 百岳">'
+  var div = L.DomUtil.create('div', 'searchbar');
+  div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="搜尋百岳 ex: 玉山">'
   return div;
 };
 searchBar.addTo(mymap)
