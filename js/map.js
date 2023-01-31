@@ -68,7 +68,7 @@ function parseData(url, callBack) {
 // Show marker and PopUp func
 parseData("data/Mountain_info.csv", showMarker);
 // Add legends
-var legend = L.control({position: 'bottomleft'});
+var legend = L.control({position: 'topleft'});
 legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'info legend');
     // div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="Search 百岳">'
@@ -77,7 +77,6 @@ legend.onAdd = function (map) {
     div.innerHTML +=  '<img src="images/marker/mountains-notyet.png">'  + "<h4>"+' Not Yet 18%'+"</h4>"
     return div;
 };
-legend.addTo(mymap);
 
 // Add search bar
 var searchBar = L.control({position: 'topleft'});
@@ -86,7 +85,9 @@ searchBar.onAdd = function (map) {
   div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="搜尋百岳 ex: 玉山">'
   return div;
 };
+
 searchBar.addTo(mymap)
+legend.addTo(mymap);
 
 
 function search_mt() {
