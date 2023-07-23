@@ -9,7 +9,7 @@ var mountNotIcon = L.icon({
 
 var mapOptions = {
     center: [23.69, 120.94],
-    zoom: 9
+    zoom: 7
   }
 var mymap = L.map('mapid', mapOptions);
 mymap.setMaxBounds([[21.69, 119.95], [26.69, 121.94]]);
@@ -23,19 +23,85 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     accessToken: 'pk.eyJ1IjoiNWNoaWVoIiwiYSI6ImNsZDV6aW83YTA0Z2gzb2pvN2NlaGgwa2UifQ.1K0nOtmpdfmdNHEO2QVtGQ'
 }).addTo(mymap);
 
-// Other way to read csv and show marker
-// $.get("data/Mountain_info.csv", function(data) {
-//   var mountains = $.csv.toObjects(data);
-//   // console.log(mountains);
-//   // Use mountains as a dictionary
-//   mountains.forEach((mountain) => {
-//     const popupContent = document.createElement("div")
-//     // popupContent.innerHTML = "<h3>" + mountain.placename +"</h3>" + "<img src='" + "images/mountains/"+ mountain.filename + ".jpg "+ "'>"
-//     const marker = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
-//         { maxWidth: "auto" }).addTo(mymap);
-//   })
-// });
+var groupA = L.layerGroup().addTo(mymap);
+var groupB = L.layerGroup().addTo(mymap);
 
+var currentGroup = "A";
+
+// 切換顯示Group的函數
+function switchGroup() {
+  if (currentGroup === 'A') {
+    // 隱藏GroupA的Marker
+    groupA.eachLayer(function (layer) {
+      mymap.removeLayer(layer);
+    });
+
+    // 顯示GroupB的Marker
+    groupB.eachLayer(function (layer) {
+      mymap.addLayer(layer);
+    });
+    legendB.addTo(mymap);
+    mymap.removeControl(legend);
+    mymap.removeControl(searchBar);
+
+    currentGroup = 'B';
+  } else if (currentGroup === 'B') {
+    // 隱藏GroupB的Marker
+    groupB.eachLayer(function (layer) {
+      mymap.removeLayer(layer);
+    });
+
+    // 顯示GroupA的Marker
+    groupA.eachLayer(function (layer) {
+      mymap.addLayer(layer);
+    });
+    searchBar.addTo(mymap)
+    legend.addTo(mymap);
+    mymap.removeControl(legendB)
+    currentGroup = 'A';
+  }
+}
+
+L.Control.Button = L.Control.extend({
+  options: {
+      position: 'topleft'
+  },
+  _onAdd: function (map) {
+    var container = L.DomUtil.create('div', 'leaflet-bar switchbar');
+    // var button = L.DomUtil.create('a', 'leaflet-control-button', container);
+    // L.DomEvent.disableClickPropagation(button);
+    L.DomEvent.on(container, 'click', function () {
+      // console.log('click');
+      switchGroup();
+
+    });
+    // container.title = "Title";
+    container.type = "button";
+    // container.style.width = '5em';
+    container.style.width = '7em';
+    container.style.backgroundColor = 'white'
+    container.title = "小/百岳";
+    container.onmouseover = function(){
+      container.style.backgroundColor = '#777'; 
+    }
+    container.onmouseout = function(){
+      container.style.backgroundColor = 'white'; 
+    }
+    container.innerHTML = "<h3>🔘小/百岳</h3>";
+    // container.style.backgroundColor = 'pink'; 
+    return container;
+  },
+  get onAdd() {
+    return this._onAdd;
+  },
+  set onAdd(value) {
+    this._onAdd = value;
+  },
+  onRemove: function(map) {},
+});
+
+var control = new L.Control.Button()
+control.addTo(mymap);
 
 function showMarker(mountains) {
   //Data is usable here
@@ -46,14 +112,27 @@ function showMarker(mountains) {
       popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
                               +'<a target="_blank" href=' +mountain.website + '>' + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
         window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
-                                { maxWidth: "auto" }).addTo(mymap);
+                                { maxWidth: "auto" }).addTo(groupA);
               
           }
     else {
       popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h3> To be finished </h3>"
       window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountNotIcon}).bindPopup(popupContent,
-        { maxWidth: "300" }).addTo(mymap);
+        { maxWidth: "300" }).addTo(groupA);
     }
+    
+  })
+}
+
+function showMarkerSmall(mountains) {
+  //Data is usable here
+  console.log(mountains);
+  mountains.forEach((mountain) => {
+    const popupContent = document.createElement("div")
+    popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
+                              +'<a target="_blank" href=' +mountain.website + '>' + "<img src='" + "images/smallmountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
+        window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+                                { maxWidth: "auto" }).addTo(groupB);
     
   })
 }
@@ -67,6 +146,9 @@ function parseData(url, callBack) {
 }
 // Show marker and PopUp func
 parseData("data/Mountain_info.csv", showMarker);
+parseData("data/Small_mountain.csv", showMarkerSmall);
+mymap.removeLayer(groupB)
+
 // Add legends
 var legend = L.control({position: 'topleft'});
 legend.onAdd = function (map) {
@@ -78,6 +160,16 @@ legend.onAdd = function (map) {
     return div;
 };
 
+var legendB = L.control({position: 'topleft'});
+legendB.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    // div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="Search 百岳">'
+    div.innerHTML +=  "<h3>"+'小百岳完成進度'+"</h3>"
+    div.innerHTML +=  '<img src="images/marker/mountains-64.png">' + "<h4>"+'Finished 100%'+"</h4>"
+
+    return div;
+};
+
 // Add search bar
 var searchBar = L.control({position: 'topleft'});
 searchBar.onAdd = function (map) {
@@ -86,7 +178,7 @@ searchBar.onAdd = function (map) {
   return div;
 };
 
-searchBar.addTo(mymap)
+searchBar.addTo(mymap);
 legend.addTo(mymap);
 
 
@@ -102,3 +194,4 @@ function search_mt() {
     })
   });
 }
+
