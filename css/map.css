@@ -27,8 +27,9 @@
 .switchbar {
     color: #555;
     width: auto;
-    padding-left: 1em;
+    padding: 1em 1em 1.5em 1em;
     margin-top: 1em;
+
     opacity: 0.9;
 }
 .switchbar i {
@@ -54,6 +55,11 @@
     color: #777;
 }
 #searchbar {
+    height: 2em;
+    width: 12em;
+    font-size: medium;
+}
+#searchsmallbar {
     height: 2em;
     width: 12em;
     font-size: medium;
