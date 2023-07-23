@@ -9,10 +9,10 @@ var mountNotIcon = L.icon({
 
 var mapOptions = {
     center: [23.69, 120.94],
-    zoom: 7
+    zoom: 9
   }
 var mymap = L.map('mapid', mapOptions);
-mymap.setMaxBounds([[21.69, 119.95], [26.69, 121.94]]);
+mymap.setMaxBounds([[15.69, 110.95], [35.69, 131.94]]);
 
 
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -40,6 +40,7 @@ function switchGroup() {
     groupB.eachLayer(function (layer) {
       mymap.addLayer(layer);
     });
+    searchsmallBar.addTo(mymap);
     legendB.addTo(mymap);
     mymap.removeControl(legend);
     mymap.removeControl(searchBar);
@@ -55,9 +56,10 @@ function switchGroup() {
     groupA.eachLayer(function (layer) {
       mymap.addLayer(layer);
     });
-    searchBar.addTo(mymap)
+    searchBar.addTo(mymap);
     legend.addTo(mymap);
-    mymap.removeControl(legendB)
+    mymap.removeControl(legendB);
+    mymap.removeControl(searchsmallBar);
     currentGroup = 'A';
   }
 }
@@ -78,7 +80,7 @@ L.Control.Button = L.Control.extend({
     // container.title = "Title";
     container.type = "button";
     // container.style.width = '5em';
-    container.style.width = '7em';
+    container.style.width = '10em';
     container.style.backgroundColor = 'white'
     container.title = "小/百岳";
     container.onmouseover = function(){
@@ -87,7 +89,7 @@ L.Control.Button = L.Control.extend({
     container.onmouseout = function(){
       container.style.backgroundColor = 'white'; 
     }
-    container.innerHTML = "<h3>🔘小/百岳</h3>";
+    container.innerHTML = "<h2>🔘百岳/小百岳</h2>";
     // container.style.backgroundColor = 'pink'; 
     return container;
   },
@@ -105,7 +107,7 @@ control.addTo(mymap);
 
 function showMarker(mountains) {
   //Data is usable here
-  console.log(mountains);
+  // console.log(mountains);
   mountains.forEach((mountain) => {
     const popupContent = document.createElement("div")
     if (mountain.website){
@@ -126,12 +128,12 @@ function showMarker(mountains) {
 
 function showMarkerSmall(mountains) {
   //Data is usable here
-  console.log(mountains);
+  // console.log(mountains);
   mountains.forEach((mountain) => {
     const popupContent = document.createElement("div")
     popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
                               +'<a target="_blank" href=' +mountain.website + '>' + "<img src='" + "images/smallmountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
-        window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+        window['marker'+"small"+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
                                 { maxWidth: "auto" }).addTo(groupB);
     
   })
@@ -178,18 +180,36 @@ searchBar.onAdd = function (map) {
   return div;
 };
 
+var searchsmallBar = L.control({position: 'topleft'});
+searchsmallBar.onAdd = function (map) {
+  var div = L.DomUtil.create('div', 'searchbar');
+  div.innerHTML += '<input id="searchsmallbar" onkeyup="search_smallmt()" type="text" name="search" placeholder="搜尋小百岳 ex: 稍來山">'
+  return div;
+};
+
 searchBar.addTo(mymap);
 legend.addTo(mymap);
 
 
 function search_mt() {
   let input = document.getElementById('searchbar').value
-  console.log(input);
   $.get("data/Mountain_info.csv", function(data) {
   var mtdata = $.csv.toObjects(data);
     mtdata.forEach((mt) => {
       if(mt.name === input){
         window['marker' + mt.file].openPopup();
+      }
+    })
+  });
+}
+
+function search_smallmt() {
+  let input = document.getElementById('searchsmallbar').value
+  $.get("data/Small_mountain.csv", function(data) {
+  var mtdata = $.csv.toObjects(data);
+    mtdata.forEach((mt) => {
+      if(mt.name === input){
+        window['marker' +"small"+ mt.file].openPopup();
       }
     })
   });
