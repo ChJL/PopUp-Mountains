@@ -80,7 +80,7 @@ L.Control.Button = L.Control.extend({
     // container.title = "Title";
     container.type = "button";
     // container.style.width = '5em';
-    container.style.width = '10em';
+    container.style.width = '12em';
     container.style.backgroundColor = 'white'
     container.title = "小/百岳";
     container.onmouseover = function(){
@@ -89,7 +89,7 @@ L.Control.Button = L.Control.extend({
     container.onmouseout = function(){
       container.style.backgroundColor = 'white'; 
     }
-    container.innerHTML = "<h2>🔘百岳/小百岳</h2>";
+    container.innerHTML = "<h2>🔘百岳/🔘小百岳</h2>";
     // container.style.backgroundColor = 'pink'; 
     return container;
   },
