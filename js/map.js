@@ -20,7 +20,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     id: '5chieh/cld7vyvjt001101s97deir5oj',
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiNWNoaWVoIiwiYSI6ImNsZDV6aW83YTA0Z2gzb2pvN2NlaGgwa2UifQ.1K0nOtmpdfmdNHEO2QVtGQ'
+    accessToken: 'pk.eyJ1IjoiNWNoaWVoIiwiYSI6ImNtaXhsZ2hxcDA1OTEzanNra3VhNDk5d2QifQ.nRpXLaHmqK5Rdsmvygqhew'
 }).addTo(mymap);
 
 var groupA = L.layerGroup().addTo(mymap);
