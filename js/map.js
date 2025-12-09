@@ -30,79 +30,84 @@ var currentGroup = "A";
 
 // 切換顯示Group的函數
 function switchGroup() {
-  if (currentGroup === 'A') {
-    // 隱藏GroupA的Marker
-    groupA.eachLayer(function (layer) {
-      mymap.removeLayer(layer);
-    });
+  var btnA = document.getElementById('btn-group-a');
+  var btnB = document.getElementById('btn-group-b');
 
-    // 顯示GroupB的Marker
-    groupB.eachLayer(function (layer) {
-      mymap.addLayer(layer);
-    });
+  if (currentGroup === 'A') {
+    // === 切換到 B (小百岳) ===
+    
+    // 1. 地圖邏輯
+    groupA.eachLayer((layer) => mymap.removeLayer(layer));
+    groupB.eachLayer((layer) => mymap.addLayer(layer));
+    
     searchsmallBar.addTo(mymap);
     legendB.addTo(mymap);
     mymap.removeControl(legend);
     mymap.removeControl(searchBar);
 
-    currentGroup = 'B';
-  } else if (currentGroup === 'B') {
-    // 隱藏GroupB的Marker
-    groupB.eachLayer(function (layer) {
-      mymap.removeLayer(layer);
-    });
+    // 2. UI 邏輯 (切換按鈕樣式)
+    btnA.classList.remove('active');
+    btnB.classList.add('active');
 
-    // 顯示GroupA的Marker
-    groupA.eachLayer(function (layer) {
-      mymap.addLayer(layer);
-    });
+    currentGroup = 'B';
+
+  } else if (currentGroup === 'B') {
+    // === 切換到 A (百岳) ===
+
+    // 1. 地圖邏輯
+    groupB.eachLayer((layer) => mymap.removeLayer(layer));
+    groupA.eachLayer((layer) => mymap.addLayer(layer));
+    
     searchBar.addTo(mymap);
     legend.addTo(mymap);
     mymap.removeControl(legendB);
     mymap.removeControl(searchsmallBar);
+
+    // 2. UI 邏輯 (切換按鈕樣式)
+    btnB.classList.remove('active');
+    btnA.classList.add('active');
+
     currentGroup = 'A';
   }
 }
 
 L.Control.Button = L.Control.extend({
   options: {
-      position: 'topleft'
+    position: 'topleft'
   },
-  _onAdd: function (map) {
-    var container = L.DomUtil.create('div', 'leaflet-bar switchbar');
-    // var button = L.DomUtil.create('a', 'leaflet-control-button', container);
-    // L.DomEvent.disableClickPropagation(button);
-    L.DomEvent.on(container, 'click', function () {
-      // console.log('click');
-      switchGroup();
+  onAdd: function (map) {
+    // 建立容器
+    var container = L.DomUtil.create('div', 'leaflet-bar switch-container');
+    
+    // 防止點擊穿透到地圖 (非常重要)
+    L.DomEvent.disableClickPropagation(container);
 
-    });
-    // container.title = "Title";
-    container.type = "button";
-    // container.style.width = '5em';
-    container.style.width = '12em';
-    container.style.backgroundColor = 'white'
-    container.title = "小/百岳";
-    container.onmouseover = function(){
-      container.style.backgroundColor = '#777'; 
+    // 建立 "百岳" 按鈕
+    var btnA = L.DomUtil.create('div', 'switch-btn active', container);
+    btnA.id = 'btn-group-a';
+    btnA.innerHTML = '⛰️百岳'; // 你也可以加 icon: '<i class="fa fa-mountain"></i> 百岳'
+    
+    // 建立 "小百岳" 按鈕
+    var btnB = L.DomUtil.create('div', 'switch-btn', container);
+    btnB.id = 'btn-group-b';
+    btnB.innerHTML = '🏃小百岳';
+
+    // 綁定點擊事件
+    // 這裡的邏輯是：只有當點擊「非當前」的按鈕時才觸發切換
+    btnA.onclick = function() {
+      if (currentGroup !== 'A') switchGroup();
     }
-    container.onmouseout = function(){
-      container.style.backgroundColor = 'white'; 
+    
+    btnB.onclick = function() {
+      if (currentGroup !== 'B') switchGroup();
     }
-    container.innerHTML = "<h2>🔘百岳/🔘小百岳</h2>";
-    // container.style.backgroundColor = 'pink'; 
+
     return container;
   },
-  get onAdd() {
-    return this._onAdd;
-  },
-  set onAdd(value) {
-    this._onAdd = value;
-  },
-  onRemove: function(map) {},
+  onRemove: function(map) {}
 });
 
-var control = new L.Control.Button()
+var control = new L.Control.Button();
 control.addTo(mymap);
 
 function showMarker(mountains) {
@@ -113,8 +118,18 @@ function showMarker(mountains) {
     if (mountain.website){
       popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
                               +'<a target="_blank" href=' +mountain.website + '>' + "<img src='" + "images/mountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
-        window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
-                                { maxWidth: "auto" }).addTo(groupA);
+      
+      var isMobile = window.innerWidth < 600;
+
+      // 根據裝置設定不同的 maxWidth
+      var popupOptions = {
+                maxWidth: isMobile ? 260 : 450, // 手機限縮在 260px，電腦則 300px
+                minWidth: isMobile ? 200 : 300,
+                autoPanPadding: [10, 10] // 確保 Popup 不會貼齊螢幕邊緣，留 10px 緩衝
+            };
+      
+      window['marker'+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+                                popupOptions).addTo(groupA);
               
           }
     else {
@@ -133,8 +148,17 @@ function showMarkerSmall(mountains) {
     const popupContent = document.createElement("div")
     popupContent.innerHTML = "<h1>" + mountain.name +"</h1>" + "<h2><a target='_blank' href='"+mountain.website+"'>Blog</a></h2>" 
                               +'<a target="_blank" href=' +mountain.website + '>' + "<img src='" + "images/smallmountains/"+ mountain.file + ".jpg "+ "'>" + "</a>"
-        window['marker'+"small"+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
-                                { maxWidth: "auto" }).addTo(groupB);
+    var isMobile = window.innerWidth < 600;
+
+    // 根據裝置設定不同的 maxWidth
+    var popupOptions = {
+                maxWidth: isMobile ? 260 : 450, // 手機限縮在 260px，電腦則 300px
+                minWidth: isMobile ? 200 : 300,
+                autoPanPadding: [10, 10] // 確保 Popup 不會貼齊螢幕邊緣，留 10px 緩衝
+            };
+
+    window['marker'+"small"+ mountain.file] = L.marker([mountain.lat, mountain.lng],{icon: mountIcon}).bindPopup(popupContent,
+                                popupOptions).addTo(groupB);
     
   })
 }
@@ -175,15 +199,15 @@ legendB.onAdd = function (map) {
 // Add search bar
 var searchBar = L.control({position: 'topleft'});
 searchBar.onAdd = function (map) {
-  var div = L.DomUtil.create('div', 'searchbar');
-  div.innerHTML += '<input id="searchbar" onkeyup="search_mt()" type="text" name="search" placeholder="搜尋百岳 ex: 玉山">'
+  var div = L.DomUtil.create('div', 'search-container');
+  div.innerHTML += '<input id="searchbar" class="custom-input" onkeyup="search_mt()" type="text" name="search" placeholder="搜尋百岳 ex: 玉山">'
   return div;
 };
 
 var searchsmallBar = L.control({position: 'topleft'});
 searchsmallBar.onAdd = function (map) {
-  var div = L.DomUtil.create('div', 'searchbar');
-  div.innerHTML += '<input id="searchsmallbar" onkeyup="search_smallmt()" type="text" name="search" placeholder="搜尋小百岳 ex: 稍來山">'
+  var div = L.DomUtil.create('div', 'search-container');
+  div.innerHTML += '<input id="searchsmallbar" class="custom-input" onkeyup="search_smallmt()" type="text" name="search" placeholder="搜尋小百岳 ex: 稍來山">'
   return div;
 };
 

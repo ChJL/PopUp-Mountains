@@ -64,3 +64,148 @@
     width: 12em;
     font-size: medium;
 }
+/* 自定義切換控制項容器 */
+.leaflet-bar.switch-container {
+  display: flex;
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+  border: 2px solid rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+/* 個別按鈕樣式 */
+.switch-btn {
+  padding: 5px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  transition: all 0.3s ease;
+  user-select: none; /* 防止文字被選取 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 滑鼠懸停效果 */
+.switch-btn:hover {
+  background-color: #f4f4f4;
+}
+
+/* 被選中的狀態 (Active) - 這裡用深藍色，你可以改成喜歡的顏色 */
+.switch-btn.active {
+  background-color: #2c3e50; /* 深藍色背景 */
+  color: white; /* 白字 */
+}
+
+/* 外層容器 */
+.search-container {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+/* 輸入框本體 */
+.custom-input {
+    width: 30px;            /* 平常只有 30px 寬 (正方形) */
+    height: 30px;
+    padding-left: 30px;     /* 預留空間給放大鏡圖示 */
+    border: 2px solid #fff; /* 白框 */
+    border-radius: 15px;    /* 變成膠囊/圓形 */
+    background: white url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Search_Icon.svg/1024px-Search_Icon.svg.png') no-repeat 8px center; /* 背景放放大鏡圖示 */
+    background-size: 14px;  /* 圖示大小 */
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    font-size: 12px;
+    outline: none;
+    transition: width 0.4s ease-in-out; /* 關鍵：設定寬度變化的動畫時間 */
+    cursor: pointer;
+}
+
+/* 當輸入框 1.被點擊(focus) 或 2.滑鼠懸停(hover) 時 */
+.custom-input:focus,
+.custom-input:hover {
+    width: 200px;           /* 伸長到 200px */
+    padding-left: 30px;     /* 保持文字不壓到圖示 */
+    cursor: text;           /* 游標變回輸入模式 */
+    border-radius: 4px;     /* 變回圓角長方形 (可選，看你喜好) */
+}
+
+/* 為了美觀，placeholder 在縮起來的時候不要顯示 */
+.custom-input::placeholder {
+    color: transparent;
+    transition: color 0.3s;
+}
+
+/* 伸長時才顯示 placeholder */
+.custom-input:focus::placeholder,
+.custom-input:hover::placeholder {
+    color: #999;
+}
+
+/* === 電腦版 (預設) === */
+.leaflet-popup-content img {
+    width: 100%;             /* 寬度撐滿 Popup 容器 */
+    height: auto;            /* 高度自動 */
+    max-height: 450px;       /* 電腦版最大允許高度 (原本只有 200px 太小了) */
+    object-fit: cover;       /* 保持比例 */
+    border-radius: 4px;
+    margin-top: 5px;
+    display: block;          /* 避免圖片下方多出空白 */
+}
+
+/* === 手機版 (螢幕小於 600px 時覆寫) === */
+@media (max-width: 600px) {
+    .leaflet-popup-content img {
+        max-height: 200px;   /* 手機上限制高度，避免擋住地圖 */
+    }
+    
+    /* 讓手機上的 Popup 容器瘦一點，避免超出螢幕 */
+    .leaflet-popup-content-wrapper {
+        max-width: 280px !important;
+        padding: 10px;
+    }
+}
+/* 燈箱背景 (預設隱藏) */
+.image-modal {
+    display: none;
+    position: absolute; /* 注意：在 Leaflet 容器內改用 absolute 會比較穩定 */
+    z-index: 10000;     /* Leaflet 的控制項通常是 1000，我們設 10000 確保在最上面 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    
+    /* 讓內容可以被點擊，但不會穿透到地圖 */
+    pointer-events: auto; 
+}
+
+/* 燈箱內的圖片 */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 900px; /* 電腦版最大寬度 */
+  max-height: 80vh; /* 高度不超過螢幕 80% */
+  object-fit: contain;
+  animation-name: zoom;
+  animation-duration: 0.3s;
+}
+
+/* 簡單的放大動畫 */
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* 關閉按鈕 (X) */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
